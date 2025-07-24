@@ -1,0 +1,65 @@
+#include <Servo.h>
+
+Servo servoH; 
+Servo servoV; 
+
+int ldrTopLeft = A0;    
+int ldrTopRight = A1;    
+int ldrBottomLeft = A2;  
+int ldrBottomRight = A3; 
+
+int servoh = 90; 
+int servov = 90; 
+
+int tol = 20; 
+
+void setup() {
+  servoH.attach(9);
+  servoV.attach(10);
+
+  servoH.write(servoh);
+  servoV.write(servov);
+
+  delay(1000); 
+}
+
+void loop() {
+  int topLeft = analogRead(ldrTopLeft);
+  int topRight = analogRead(ldrTopRight);
+  int bottomLeft = analogRead(ldrBottomLeft);
+  int bottomRight = analogRead(ldrBottomRight);
+
+  // Averages
+  int avgTop = (topLeft + topRight) / 2;
+  int avgBottom = (bottomLeft + bottomRight) / 2;
+  int avgLeft = (topLeft + bottomLeft) / 2;
+  int avgRight = (topRight + bottomRight) / 2;
+
+  // Vertical movement
+  int diffV = avgTop - avgBottom;
+
+  if (abs(diffV) > tol) {
+    if (diffV > 0) {
+      servov = servov - 1;
+    } else {
+      servov = servov + 1;
+    }
+    servov = constrain(servov, 0, 180);
+    servoV.write(servov);
+  }
+
+  // Horizontal movement
+  int diffH = avgLeft - avgRight;
+
+  if (abs(diffH) > tol) {
+    if (diffH > 0) {
+      servoh = servoh + 1;
+    } else {
+      servoh = servoh - 1;
+    }
+    servoh = constrain(servoh, 0, 180);
+    servoH.write(servoh);
+  }
+
+  delay(100); // Stabilize readings
+}
